@@ -89,6 +89,12 @@ int main(void) {
   static Model chandelier("models/chandelier/Chandelier.obj");
   static Floor floor;
 
+  static vector<Model> bottles;
+  bottles.push_back(Model("models/bottles/Bottle1.obj"));
+  bottles.push_back(Model("models/bottles/Bottle2.obj"));
+  bottles.push_back(Model("models/bottles/Bottle3.obj"));
+  bottles.push_back(Model("models/bottles/Bottle4.obj"));
+
   while (!glfwWindowShouldClose(window)) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
@@ -130,9 +136,22 @@ int main(void) {
 
       mat4 M = mat4(1.0f);
       M = translate(M, vec3(x, 0.0f, z));
-      cout << "X: " << x << " | Y: " << z << endl;
       shader.setMat4("M", M);
       pedestal.Draw(shader);
+    }
+
+    // 8 bottles on pedestals
+    for (int i = 0; i < 8; ++i) {
+      float angle = radians(180.0f - (i * 180.0f / 7.0f));
+      float x = radius * cos(angle);
+      float z = centerZ - radius * sin(angle);
+
+      Model bottle = bottles[i % bottles.size()];
+
+      mat4 M = mat4(1.0f);
+      M = translate(M, vec3(x, 0.80f, z));
+      shader.setMat4("M", M);
+      bottle.Draw(shader);
     }
 
     // Floor
