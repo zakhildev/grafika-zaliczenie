@@ -91,6 +91,29 @@ Floor::Floor() {
     std::cerr << "Failed to load floor normal texture." << std::endl;
   }
 
+  Texture specular;
+  specular.type = "texture_specular";
+  specular.path = "textures/floor_specular.jpg";
+  unsigned char *tex_specular =
+      stbi_load(specular.path.c_str(), &width, &height, &channels, 0);
+  if (tex_specular) {
+    glGenTextures(1, &specular.id);
+    glBindTexture(GL_TEXTURE_2D, specular.id);
+    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, tex_specular);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_image_free(tex_specular);
+    textures.push_back(specular);
+  } else {
+    std::cerr << "Failed to load floor specular texture." << std::endl;
+  }
+
   mesh = new Mesh(vertices, indices, textures);
 }
 

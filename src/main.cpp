@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
+#include <iostream>
 
 #include "include/Callbacks.hpp"
 #include "include/Floor.hpp"
@@ -73,14 +74,19 @@ int main(void) {
 
   shader.setMat4("P", P);
 
-  // Set lighting uniforms
-  shader.setVec3("lightPos", 0.0f, 20.0f, 0.0f);
+  // Set lighting uniforms - Light 1
+  shader.setVec3("lightPos", 0.0f, 7.5f, -8.5f);
   shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+  // Set lighting uniforms - Light 2
+  shader.setVec3("lightPos2", 0.0f, 7.5f, 8.5f);
+  shader.setVec3("lightColor2", 1.0f, 1.0f, 1.0f);
 
   float deltaTime = 0.0f;
   float lastFrame = 0.0f;
 
   static Model pedestal("models/pedestal/Pedestal.obj");
+  static Model chandelier("models/chandelier/Chandelier.obj");
   static Floor floor;
 
   while (!glfwWindowShouldClose(window)) {
@@ -95,8 +101,22 @@ int main(void) {
     shader.setMat4("V", V);
     shader.setVec3("viewPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
-    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+    glClearColor(0.81f, 0.92f, 0.97f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Chandelier 1
+    mat4 chandelierM = mat4(1.0f);
+    chandelierM = translate(chandelierM, vec3(0.0f, 7.5f, -8.5f));
+    chandelierM = scale(chandelierM, vec3(2.0f, 2.0f, 2.0f));
+    shader.setMat4("M", chandelierM);
+    chandelier.Draw(shader);
+
+    // Chandelier 2
+    chandelierM = mat4(1.0f);
+    chandelierM = translate(chandelierM, vec3(0.0f, 7.5f, 8.5f));
+    chandelierM = scale(chandelierM, vec3(2.0f, 2.0f, 2.0f));
+    shader.setMat4("M", chandelierM);
+    chandelier.Draw(shader);
 
     // 8 Pedestals in a semi-circle
     float radius = 7.0f;
@@ -110,6 +130,7 @@ int main(void) {
 
       mat4 M = mat4(1.0f);
       M = translate(M, vec3(x, 0.0f, z));
+      cout << "X: " << x << " | Y: " << z << endl;
       shader.setMat4("M", M);
       pedestal.Draw(shader);
     }

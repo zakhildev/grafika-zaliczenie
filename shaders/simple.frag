@@ -10,8 +10,10 @@ in vec3 Bitangent;
 out vec4 FragColor;
 
 uniform vec3 lightPos;
-uniform vec3 viewPos;
 uniform vec3 lightColor;
+uniform vec3 lightPos2;
+uniform vec3 lightColor2;
+uniform vec3 viewPos;
 
 uniform sampler2D texture_diffuse1;
 uniform sampler2D texture_specular1;
@@ -43,34 +45,31 @@ void main() {
   }
 
   // Światło otoczenia (Ambient)
-  // Symuluje globalne rozproszenie światła. Mnożenie stałej (0.35) przez kolor światła
-  // daje podstawowy poziom oświetlenia w cieniu.
-  float ambientStrength = 0.35;
+  float ambientStrength = 0.25;
   vec3 ambient = ambientStrength * lightColor;
   
-  // Światło rozproszone (Diffuse) - model Lamberta
-  // 1. Obliczenie wektora kierunku światła od danego fragmentu do źródła światła (lightPos).
+  // Światło rozproszone i lustrzane ze źródła 1
   vec3 lightDir = normalize(lightPos - FragPos);
-  // 2. Iloczyn skalarny (dot product) dwóch znormalizowanych wektorów daje cosinus kąta między nimi.
-  // Jeśli wektory są równoległe (kąt 0), wynik to 1 (maksymalne oświetlenie).
-  // Funkcja max(..., 0.0) upewnia się, że nie otrzymamy ujemnego oświetlenia, gdy powierzchnia jest odwrócona tyłem do światła (kąt > 90 stopni).
   float diff = max(dot(lightDir, finalNormal), 0.0);
   vec3 diffuse = diff * lightColor;
   
-  // Światło lustrzane (Specular) - model Blinna-Phonga
-  float specularStrength = 0.5;
-  // 1. Wektor z fragmentu w stronę kamery (obserwatora).
+  // Specular - model Phonga dla źródła 1
+  float specularStrength = 1.2;
   vec3 viewDir = normalize(viewPos - FragPos);
-  // 2. Wektor połówkowy (halfway vector) - wektor znajdujący się dokładnie w połowie
-  // drogi między wektorem kierunku światła a wektorem patrzenia.
-  vec3 halfwayDir = normalize(lightDir + viewDir);  
-  // 3. Obliczenie natężenia odbicia: cosinus kąta między normalną powierzchni a wektorem połówkowym.
-  // Podniesienie wyniku do potęgi (tutaj 32) powoduje, że odblask staje się mniejszy i bardziej ostry (tzw. shininess).
-  float spec = pow(max(dot(finalNormal, halfwayDir), 0.0), 32.0);
+  vec3 reflectDir = reflect(-lightDir, finalNormal);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0);
   vec3 specMap = vec3(texture(texture_specular1, TexCoords));
-  if (length(specMap) < 0.01) specMap = vec3(0.5); // Wartość domyślna w przypadku braku tekstury specular
-  // Ostateczny kolor odbicia to wymnożona siła odblasku, obliczona wartość potęgowa, kolor światła i próbka z mapy odblasków.
+  if (length(specMap) < 0.01) specMap = vec3(0.5);
   vec3 specular = specularStrength * spec * lightColor * specMap;
+  
+  // Światło rozproszone i lustrzane ze źródła 2
+  vec3 lightDir2 = normalize(lightPos2 - FragPos);
+  float diff2 = max(dot(lightDir2, finalNormal), 0.0);
+  vec3 diffuse2 = diff2 * lightColor2;
+  
+  vec3 reflectDir2 = reflect(-lightDir2, finalNormal);
+  float spec2 = pow(max(dot(viewDir, reflectDir2), 0.0), 64.0);
+  vec3 specular2 = specularStrength * spec2 * lightColor2 * specMap;
   
   // Kolor bazowy obiektu z mapy diffuse
   vec3 baseColor = vec3(texture(texture_diffuse1, TexCoords));
@@ -78,9 +77,7 @@ void main() {
     baseColor = Color != vec3(0.0) ? Color : vec3(0.8);
   }
   
-  // Równanie oświetlenia: 
-  // Naświetlenie otoczenia i rozproszone są dodawane do siebie i modulują (mnożą) bazowy kolor materiału.
-  // Na koniec do całości dodawane jest oświetlenie lustrzane (odblaski nakładają się addytywnie).
-  vec3 result = (ambient + diffuse) * baseColor + specular;
+  // Równanie oświetlenia: suma oświetlenia z dwóch źródeł
+  vec3 result = (ambient + diffuse + diffuse2) * baseColor + specular + specular2;
   FragColor = vec4(result, 1.0);
 }

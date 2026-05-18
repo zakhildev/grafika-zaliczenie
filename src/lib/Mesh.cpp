@@ -23,8 +23,8 @@ void Mesh::setupMesh() {
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   // Tu można dać vertices[0] bo struktura jest ciągła w pamięci
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(),
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
+               vertices.data(), GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint),
