@@ -12,7 +12,6 @@
 #include "include/Floor.hpp"
 #include "include/Model.hpp"
 #include "include/Shader.hpp"
-#include "include/TextRenderer.hpp"
 
 using namespace glm;
 using namespace std;
@@ -67,15 +66,6 @@ int main(void) {
   glfwSetCursorPosCallback(window, Callbacks::mouse_callback);
 
   Shader shader("shaders/simple.vert", "shaders/simple.frag");
-  shader.use();
-
-  Shader textShader("shaders/text.vert", "shaders/text.frag");
-  mat4 projection2D = ortho(0.0f, 720.0f, 0.0f, 720.0f);
-  textShader.use();
-  textShader.setMat4("projection", projection2D);
-
-  TextRenderer textRenderer(720, 720);
-  textRenderer.Load("/System/Library/Fonts/Supplemental/Arial.ttf", 24);
 
   shader.use();
 
@@ -90,10 +80,6 @@ int main(void) {
   float deltaTime = 0.0f;
   float lastFrame = 0.0f;
 
-  static float timeSinceLastFPSUpdate = 0.0f;
-  static int frameCount = 0;
-  static int fps = 0;
-
   static Model pedestal("models/pedestal/Pedestal.obj");
   static Floor floor;
 
@@ -101,15 +87,6 @@ int main(void) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-
-    // FPS calculation
-    frameCount++;
-    timeSinceLastFPSUpdate += deltaTime;
-    if (timeSinceLastFPSUpdate >= 1.0f) {
-      fps = (int)ceil((float)frameCount / timeSinceLastFPSUpdate);
-      frameCount = 0;
-      timeSinceLastFPSUpdate = 0.0f;
-    }
 
     Callbacks::processInput(window, deltaTime);
 
@@ -142,12 +119,6 @@ int main(void) {
     floorM = translate(floorM, vec3(0.0f, -1.0f, 0.0f));
     shader.setMat4("M", floorM);
     floor.Draw(shader);
-
-    // GUI Text
-    textRenderer.RenderText(textShader, "FPS: " + to_string(fps), 5.0f, 700.0f,
-                            1.0f, vec3(1.0f, 1.0f, 1.0f));
-    textRenderer.RenderText(textShader, "Drinks: " + to_string(drinksDrank),
-                            5.0f, 675.0f, 1.0f, vec3(1.0f, 1.0f, 1.0f));
 
     glfwSwapBuffers(window);
     glfwPollEvents();

@@ -1,18 +1,20 @@
 UNAME := $(shell uname)
+COMMON_LIBS = -lglfw -lGLEW -lassimp
+COMMON_INCLUDES = -I./dependencies/glm/
 
 # Linux
 ifeq ($(UNAME), Linux)
 	CXX = g++
-	INCLUDES = -I./dependencies/glm/
-	LIBS = -lglfw -lGLEW -lassimp
+	INCLUDES = $(COMMON_INCLUDES)
+	LIBS = $(COMMON_LIBS)
 endif
 
 # MacOS
 ifeq ($(UNAME), Darwin)
 	CXX = clang++
 	CXXFLAGS = -std=c++23 -g
- 	INCLUDES = -I./dependencies/glm/ -L/opt/homebrew/lib/ -I/opt/homebrew/opt/freetype/include/freetype2 -I/opt/homebrew/opt/libpng/include/libpng16
-	LIBS = -lglfw -lGLEW -lassimp -lfreetype -framework OpenGL 
+ 	INCLUDES = $(COMMON_INCLUDES) -L/opt/homebrew/lib/
+	LIBS = $(COMMON_LIBS) -framework OpenGL 
 endif
 
 HEADERS = $(wildcard ./src/include/*.h) $(wildcard ./src/include/*.hpp)
