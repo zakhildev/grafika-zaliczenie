@@ -31,18 +31,22 @@ void initOpenGLProgram(GLFWwindow *window) {
 int main(void) {
   GLFWwindow *window;
 
+	// Modern Linux desktop require to pass GLFW_PLATFORM_X11 hint to GLFW 
+	// in order to use OpenGL context with X11 instead of Wayland.
+	const char* session_type = getenv("XDG_SESSION_TYPE");
+	if (session_type && strcmp(session_type, "wayland") == 0 && getenv("DISPLAY")) {
+		glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	}
+
   if (!glfwInit()) {
     fprintf(stderr, "Can't initialize GLFW.\n");
     exit(EXIT_FAILURE);
   }
 
-  // MacOS requires to specify OpenGL version and profile
-#ifdef __APPLE__
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#endif
 
   // Disable window resizing to simplify things
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -56,9 +60,10 @@ int main(void) {
 
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
+  
 
-  GLenum err;
-  if ((err = glewInit()) != GLEW_OK) {
+  GLenum err = glewInit();
+  if (err != GLEW_OK) {
     fprintf(stderr, "Can't initialize GLEW: %s\n", glewGetErrorString(err));
     exit(EXIT_FAILURE);
   }

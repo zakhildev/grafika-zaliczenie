@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <sys/types.h>
+#include <glm/glm.hpp>
 
 using namespace std;
 using namespace glm;
