@@ -1,6 +1,8 @@
 #pragma once
 #include "glm/ext/matrix_float4x4.hpp"
+#include <atomic>
 #include <string>
+#include <thread>
 
 using namespace std;
 using namespace glm;
@@ -10,7 +12,12 @@ public:
   Shader(const char *vertexPath, const char *fragmentPath);
   ~Shader();
   void use() const;
-  unsigned int getID() const { return ID; }
+  uint getID() const { return ID; }
+
+  atomic<bool> shouldRecompile{false};
+  atomic<bool> watcherStarted{true};
+  thread watcherThread;
+  void recompile();
 
   // Uniform setter functions
   void setBool(const string &name, bool value) const;
@@ -28,5 +35,7 @@ public:
   int getAttribLocation(const string &name) const;
 
 private:
-  unsigned int ID;
+  uint ID;
+  string vertexPathStr;
+  string fragmentPathStr;
 };

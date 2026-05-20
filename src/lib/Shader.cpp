@@ -1,15 +1,20 @@
 #include "../include/Shader.hpp"
 #include <GL/glew.h>
+#include <filesystem>
 #include <fstream>
+#include <glm/glm.hpp>
 #include <iostream>
 #include <sstream>
 #include <sys/types.h>
-#include <glm/glm.hpp>
+#include <thread>
 
 using namespace std;
 using namespace glm;
+namespace fs = std::filesystem;
 
-Shader::Shader(const char *vertexPath, const char *fragmentPath) {
+uint compileShader(const char *vertexPath, const char *fragmentPath) {
+  uint newID;
+
   // 1. Retrieve the vertex/fragment source code from filePath
   string vertexCode;
   string fragmentCode;
@@ -73,13 +78,13 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
   }
 
   // Create shader program
-  ID = glCreateProgram();
-  glAttachShader(ID, vertex);
-  glAttachShader(ID, fragment);
-  glLinkProgram(ID);
-  glGetProgramiv(ID, GL_LINK_STATUS, &ok);
+  newID = glCreateProgram();
+  glAttachShader(newID, vertex);
+  glAttachShader(newID, fragment);
+  glLinkProgram(newID);
+  glGetProgramiv(newID, GL_LINK_STATUS, &ok);
   if (!ok) {
-    glGetProgramInfoLog(ID, 512, nullptr, infoLog);
+    glGetProgramInfoLog(newID, 512, nullptr, infoLog);
     cerr << "[Shader] Error, shader program linking failed: " << infoLog
          << endl;
   }
@@ -87,9 +92,67 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
   // Free shader resources
   glDeleteShader(vertex);
   glDeleteShader(fragment);
+  return newID;
 }
 
-Shader::~Shader() { glDeleteProgram(ID); }
+Shader::Shader(const char *vertexPath, const char *fragmentPath) {
+  this->vertexPathStr = vertexPath;
+  this->fragmentPathStr = fragmentPath;
+  shouldRecompile = false;
+  ID = compileShader(vertexPath, fragmentPath);
+
+  watcherThread = thread([this]() {
+    fs::file_time_type vertexLastWriteTime;
+    fs::file_time_type fragmentLastWriteTime;
+
+    try {
+      vertexLastWriteTime = fs::last_write_time(vertexPathStr);
+      fragmentLastWriteTime = fs::last_write_time(fragmentPathStr);
+    } catch (fs::filesystem_error &e) {
+      cerr << "[Shader] Error reading shader files metadata: " << e.what()
+           << endl;
+      return;
+    }
+
+    while (watcherStarted) {
+      this_thread::sleep_for(chrono::milliseconds(500));
+
+      try {
+        auto currentVertexWriteTime = fs::last_write_time(vertexPathStr);
+        auto currentFragmentWriteTime = fs::last_write_time(fragmentPathStr);
+
+        if ((currentVertexWriteTime != vertexLastWriteTime ||
+             currentFragmentWriteTime != fragmentLastWriteTime) &&
+            !shouldRecompile) {
+          shouldRecompile = true;
+          cout << "[Shader] Detected shader file change, marking for "
+                  "recompilation."
+               << endl;
+          vertexLastWriteTime = currentVertexWriteTime;
+          fragmentLastWriteTime = currentFragmentWriteTime;
+        }
+      } catch (fs::filesystem_error &e) {
+        cerr << "[Shader] Error reading shader files metadata: " << e.what()
+             << endl;
+      }
+    }
+  });
+}
+
+Shader::~Shader() {
+  watcherStarted = false;
+  if (watcherThread.joinable()) {
+    watcherThread.join();
+  }
+
+  glDeleteProgram(ID);
+}
+
+void Shader::recompile() {
+  glDeleteProgram(ID);
+  ID = compileShader(vertexPathStr.c_str(), fragmentPathStr.c_str());
+  shouldRecompile = false;
+}
 
 void Shader::use() const { glUseProgram(ID); }
 

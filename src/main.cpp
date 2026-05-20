@@ -7,7 +7,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
-#include <iostream>
 
 #include "include/Callbacks.hpp"
 #include "include/Floor.hpp"
@@ -31,12 +30,15 @@ void initOpenGLProgram(GLFWwindow *window) {
 int main(void) {
   GLFWwindow *window;
 
-	// Modern Linux desktop require to pass GLFW_PLATFORM_X11 hint to GLFW 
-	// in order to use OpenGL context with X11 instead of Wayland.
-	const char* session_type = getenv("XDG_SESSION_TYPE");
-	if (session_type && strcmp(session_type, "wayland") == 0 && getenv("DISPLAY")) {
-		glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
-	}
+#ifdef __linux__
+  // Modern Linux desktop require to pass GLFW_PLATFORM_X11 hint to GLFW
+  // in order to use OpenGL context with X11 instead of Wayland.
+  const char *session_type = getenv("XDG_SESSION_TYPE");
+  if (session_type && strcmp(session_type, "wayland") == 0 &&
+      getenv("DISPLAY")) {
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+  }
+#endif
 
   if (!glfwInit()) {
     fprintf(stderr, "Can't initialize GLFW.\n");
@@ -60,7 +62,6 @@ int main(void) {
 
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
-  
 
   GLenum err = glewInit();
   if (err != GLEW_OK) {
@@ -77,16 +78,6 @@ int main(void) {
 
   static mat4 P = perspective(radians(50.0f), 1.0f, 0.1f, 50.0f);
 
-  shader.setMat4("P", P);
-
-  // Set lighting uniforms - Light 1
-  shader.setVec3("lightPos", 0.0f, 7.5f, -8.5f);
-  shader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-
-  // Set lighting uniforms - Light 2
-  shader.setVec3("lightPos2", 0.0f, 7.5f, 8.5f);
-  shader.setVec3("lightColor2", 1.0f, 1.0f, 1.0f);
-
   float deltaTime = 0.0f;
   float lastFrame = 0.0f;
 
@@ -101,6 +92,23 @@ int main(void) {
   bottles.push_back(Model("models/bottles/Bottle4.obj"));
 
   while (!glfwWindowShouldClose(window)) {
+    if (shader.shouldRecompile) {
+      shader.recompile();
+    }
+
+    shader.setMat4("P", P);
+
+    // Set ambient color uniform
+    shader.setVec3("ambientColor", 1.0f, 1.0f, 1.0f);
+
+    // Set lighting uniforms - Light 1
+    shader.setVec3("lightPos1", 0.0f, 7.5f, -8.5f);
+    shader.setVec3("lightColor1", 1.0f, 1.0f, 1.0f);
+
+    // Set lighting uniforms - Light 2
+    shader.setVec3("lightPos2", 0.0f, 7.5f, 8.5f);
+    shader.setVec3("lightColor2", 1.0f, 1.0f, 1.0f);
+
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
