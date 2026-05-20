@@ -67,34 +67,8 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
       vec.y = mesh->mTextureCoords[0][i].y;
       vertex.TexCoords = vec;
 
-      if (mesh->mTangents) {
-        vector.x = mesh->mTangents[i].x;
-        vector.y = mesh->mTangents[i].y;
-        vector.z = mesh->mTangents[i].z;
-        vertex.Tangent = vector;
-      } else {
-        vertex.Tangent = glm::vec3(0.0f);
-      }
-
-      if (mesh->mBitangents) {
-        vector.x = mesh->mBitangents[i].x;
-        vector.y = mesh->mBitangents[i].y;
-        vector.z = mesh->mBitangents[i].z;
-        vertex.Bitangent = vector;
-      } else {
-        vertex.Bitangent = glm::vec3(0.0f);
-      }
     } else {
       vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-      vertex.Tangent = glm::vec3(0.0f);
-      vertex.Bitangent = glm::vec3(0.0f);
-    }
-
-    if (mesh->HasVertexColors(0)) {
-      vector.r = mesh->mColors[0][i].r;
-      vector.g = mesh->mColors[0][i].g;
-      vector.b = mesh->mColors[0][i].b;
-      vertex.Color = vector;
     }
 
     vertices.push_back(vertex);

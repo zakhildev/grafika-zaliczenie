@@ -12,30 +12,18 @@ Floor::Floor() {
   vertices[0].Pos = vec3(-size, 0.0f, size);
   vertices[0].Normal = vec3(0.0f, 1.0f, 0.0f);
   vertices[0].TexCoords = vec2(0.0f, 0.0f);
-  vertices[0].Color = vec3(1.0f);
-  vertices[0].Tangent = vec3(1.0f, 0.0f, 0.0f);
-  vertices[0].Bitangent = vec3(0.0f, 0.0f, -1.0f);
 
   vertices[1].Pos = vec3(size, 0.0f, size);
   vertices[1].Normal = vec3(0.0f, 1.0f, 0.0f);
   vertices[1].TexCoords = vec2(uv_repeat, 0.0f);
-  vertices[1].Color = vec3(1.0f);
-  vertices[1].Tangent = vec3(1.0f, 0.0f, 0.0f);
-  vertices[1].Bitangent = vec3(0.0f, 0.0f, -1.0f);
 
   vertices[2].Pos = vec3(size, 0.0f, -size);
   vertices[2].Normal = vec3(0.0f, 1.0f, 0.0f);
   vertices[2].TexCoords = vec2(uv_repeat, uv_repeat);
-  vertices[2].Color = vec3(1.0f);
-  vertices[2].Tangent = vec3(1.0f, 0.0f, 0.0f);
-  vertices[2].Bitangent = vec3(0.0f, 0.0f, -1.0f);
 
   vertices[3].Pos = vec3(-size, 0.0f, -size);
   vertices[3].Normal = vec3(0.0f, 1.0f, 0.0f);
   vertices[3].TexCoords = vec2(0.0f, uv_repeat);
-  vertices[3].Color = vec3(1.0f);
-  vertices[3].Tangent = vec3(1.0f, 0.0f, 0.0f);
-  vertices[3].Bitangent = vec3(0.0f, 0.0f, -1.0f);
 
   vector<uint> indices = {0, 1, 2, 0, 2, 3};
 

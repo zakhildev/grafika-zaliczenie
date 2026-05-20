@@ -13,9 +13,6 @@ typedef struct Vertex {
   vec3 Pos;
   vec3 Normal;
   vec2 TexCoords;
-  vec3 Color;
-  vec3 Tangent;
-  vec3 Bitangent;
 } Vertex;
 
 typedef struct Texture {
