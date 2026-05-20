@@ -67,30 +67,6 @@ Floor::Floor() {
     std::cerr << "Failed to load floor diffuse texture." << std::endl;
   }
 
-  // Normal texture
-  Texture normal;
-  normal.type = "texture_normal";
-  normal.path = "textures/floor_normal.jpg";
-  unsigned char *tex_normal =
-      stbi_load(normal.path.c_str(), &width, &height, &channels, 0);
-  if (tex_normal) {
-    glGenTextures(1, &normal.id);
-    glBindTexture(GL_TEXTURE_2D, normal.id);
-    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                 GL_UNSIGNED_BYTE, tex_normal);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_image_free(tex_normal);
-    textures.push_back(normal);
-  } else {
-    std::cerr << "Failed to load floor normal texture." << std::endl;
-  }
-
   Texture specular;
   specular.type = "texture_specular";
   specular.path = "textures/floor_specular.jpg";

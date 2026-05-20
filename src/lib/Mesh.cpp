@@ -59,8 +59,6 @@ void Mesh::setupMesh() {
 void Mesh::Draw(Shader &shader) const {
   uint diffuseNum = 1;
   uint specularNum = 1;
-  uint normalNum = 1;
-  uint heightNum = 1;
 
   for (uint i = 0; i < textures.size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i);
@@ -70,10 +68,6 @@ void Mesh::Draw(Shader &shader) const {
       number = to_string(diffuseNum++);
     else if (type == "texture_specular")
       number = to_string(specularNum++);
-    else if (type == "texture_normal")
-      number = to_string(normalNum++);
-    else if (type == "texture_height")
-      number = to_string(heightNum++);
     glUniform1i(glGetUniformLocation(shader.getID(), (type + number).c_str()),
                 i);
     glBindTexture(GL_TEXTURE_2D, textures[i].id);
