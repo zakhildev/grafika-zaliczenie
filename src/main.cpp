@@ -1,5 +1,4 @@
-﻿#include <algorithm>
-#define GLM_FORCE_RADIANS
+﻿#define GLM_FORCE_RADIANS
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "glm/ext/matrix_clip_space.hpp"
@@ -8,16 +7,21 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
+#include <iostream>
+#include <vector>
 
 #include "include/Callbacks.hpp"
 #include "include/Floor.hpp"
+#include "include/GameObject.hpp"
 #include "include/Model.hpp"
 #include "include/Shader.hpp"
 
 using namespace glm;
 using namespace std;
 
-int drinksDrank = 0;
+static int drinksDrank = 0;
+static bool canDrink = false;
+static bool isDrinking = false;
 
 void initOpenGLProgram(GLFWwindow *window) {
   stbi_set_flip_vertically_on_load(true);
@@ -86,26 +90,45 @@ int main(void) {
   static Model chandelier("models/chandelier/Chandelier.obj");
   static Floor floor;
 
-  static vector<Model> bottles;
-  bottles.push_back(Model("models/bottles/bottle1/Bottle1.obj"));
-  bottles.push_back(Model("models/bottles/bottle2/Bottle2.obj"));
-  bottles.push_back(Model("models/bottles/bottle3/Bottle3.obj"));
+  static vector<Model> bottleModels;
+  bottleModels.push_back(Model("models/bottles/bottle1/Bottle1.obj"));
+  bottleModels.push_back(Model("models/bottles/bottle2/Bottle2.obj"));
+  bottleModels.push_back(Model("models/bottles/bottle3/Bottle3.obj"));
+
+  static vector<GameObject> bottles, pedestals;
+  // Create 8 bottle instances (one for each pedestal position)
+  // and 8 pedestal instances (one for each position in the semi-circle)
+  for (int i = 0; i < 8; ++i) {
+    CollisionSphere bottleSphere;
+    bottleSphere.radius = 1.0f;
+    GameObject bottleObject(&bottleModels[i % bottleModels.size()],
+                            bottleSphere);
+    bottles.push_back(bottleObject);
+
+    CollisionSphere pedestalSphere;
+    pedestalSphere.radius = 0.5f;
+    GameObject pedestalObject(&pedestal, pedestalSphere);
+    pedestals.push_back(pedestalObject);
+  }
+
+  CollisionSphere cameraSphere;
+  cameraSphere.radius = 0.5f;
+  GameObject cameraCollider(nullptr, cameraSphere);
 
   while (!glfwWindowShouldClose(window)) {
     if (shader.shouldRecompile) {
       shader.recompile();
     }
 
+    cameraSphere.center = vec3(cameraPos.x, 0.0f, cameraPos.z);
+    cameraCollider.setCollisionSphere(cameraSphere);
+
     shader.setMat4("P", P);
 
-    // Set ambient color uniform
+    // Ustawenie oświetlenia
     shader.setVec3("ambientColor", 1.0f, 1.0f, 1.0f);
-
-    // Set lighting uniforms - Light 1
     shader.setVec3("lightPos1", 0.0f, 7.5f, -8.5f);
     shader.setVec3("lightColor1", 1.0f, 1.0f, 1.0f);
-
-    // Set lighting uniforms - Light 2
     shader.setVec3("lightPos2", 0.0f, 7.5f, 8.5f);
     shader.setVec3("lightColor2", 1.0f, 1.0f, 1.0f);
 
@@ -138,35 +161,45 @@ int main(void) {
     chandelier.Draw(shader);
 
     // 8 Pedestals in a semi-circle
-    float radius = 7.0f;
-    float centerZ = -5.0f;
+    static float radius = 7.0f;
+    static float centerZ = -5.0f;
     for (int i = 0; i < 8; ++i) {
-      // Calculate angle for a semi-circle (from 180 degrees down to 0 degrees)
+      // Calculate angle for a semi-circle (from 180 degrees down to 0
+      // degrees)
       float angle = radians(180.0f - (i * 180.0f / 7.0f));
       float x = radius * cos(angle);
       float z = centerZ - radius * sin(angle);
 
       mat4 M = mat4(1.0f);
       M = translate(M, vec3(x, 0.0f, z));
-      // Rotate pedestals to face the center of the room
       M = rotate(M, angle - radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
       shader.setMat4("M", M);
-      pedestal.Draw(shader);
+
+      CollisionSphere pedestalSphere = pedestals[i].getCollisionSphere();
+      pedestalSphere.center = vec3(x, 0.0f, z);
+      pedestals[i].setCollisionSphere(pedestalSphere);
+
+      pedestals[i].Draw(shader);
     }
 
     // 8 bottles on pedestals
     for (int i = 0; i < 8; ++i) {
+      GameObject &bottleObject = bottles[i % bottles.size()];
+
       float angle = radians(180.0f - (i * 180.0f / 7.0f));
       float x = radius * cos(angle);
       float z = centerZ - radius * sin(angle);
 
-      Model bottle = bottles[i % bottles.size()];
-
       mat4 M = mat4(1.0f);
       M = translate(M, vec3(x, .0f, z));
       M = rotate(M, angle - radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
+
+      CollisionSphere bottleSphere = bottleObject.getCollisionSphere();
+      bottleSphere.center = vec3(x, 0.0f, z);
+      bottleObject.setCollisionSphere(bottleSphere);
+
       shader.setMat4("M", M);
-      bottle.Draw(shader);
+      bottleObject.Draw(shader);
     }
 
     // Floor
@@ -174,6 +207,25 @@ int main(void) {
     floorM = translate(floorM, vec3(0.0f, -1.0f, 0.0f));
     shader.setMat4("M", floorM);
     floor.Draw(shader);
+
+    for (const auto &pedestal : pedestals) {
+      if (cameraCollider.checkCollision(pedestal)) {
+        vec3 direction = normalize(pedestal.getCollisionSphere().center -
+                                   cameraSphere.center);
+        cameraPos -= direction * 0.1f;
+      }
+    }
+
+    for (int i = 0; i < bottles.size(); ++i) {
+      const auto &bottle = bottles[i];
+      if (cameraCollider.checkCollision(bottle)) {
+        cout << "[Collision] Detected collision with bottle " << i << endl;
+        canDrink = true;
+        break; // Sprawdzamy do pierwszego wykrycia
+      } else {
+        canDrink = false;
+      }
+    }
 
     glfwSwapBuffers(window);
     glfwPollEvents();
