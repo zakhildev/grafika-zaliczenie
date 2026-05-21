@@ -142,6 +142,14 @@ int main(void) {
 
     Callbacks::processInput(window, deltaTime);
 
+    // Animacja picia
+    if (isDrinking) {
+      drinkingAnimationTime += deltaTime;
+      if (drinkingAnimationTime >= drinkingDuration) {
+        isDrinking = false;
+      }
+    }
+
     shader.use();
     mat4 V = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
     shader.setMat4("V", V);
@@ -164,12 +172,9 @@ int main(void) {
     shader.setMat4("M", chandelierM);
     chandelier.Draw(shader);
 
-    // 8 Pedestals in a semi-circle
     static float radius = 7.0f;
     static float centerZ = -5.0f;
     for (int i = 0; i < 8; ++i) {
-      // Calculate angle for a semi-circle (from 180 degrees down to 0
-      // degrees)
       float angle = radians(180.0f - (i * 180.0f / 7.0f));
       float x = radius * cos(angle);
       float z = centerZ - radius * sin(angle);
@@ -186,7 +191,7 @@ int main(void) {
       pedestals[i].Draw(shader);
     }
 
-    // 8 bottles on pedestals
+    // Butelki
     for (int i = 0; i < 8; ++i) {
       GameObject &bottleObject = bottles[i % bottles.size()];
 
@@ -196,11 +201,33 @@ int main(void) {
 
       mat4 M = mat4(1.0f);
       M = translate(M, vec3(x, .0f, z));
-      M = rotate(M, angle - radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
 
       CollisionSphere bottleSphere = bottleObject.getCollisionSphere();
       bottleSphere.center = vec3(x, 0.0f, z);
       bottleObject.setCollisionSphere(bottleSphere);
+
+      // Sprawdzenie kolizji z przetwarzaną butelką
+      if (isDrinking && cameraCollider.checkCollision(bottleObject)) {
+        float progress = drinkingAnimationTime / drinkingDuration;
+
+        // Obliczenie kąta obrotu i ograniczenie go do 45 stopni
+        float rotationAmount = sin(progress * M_PI) * radians(45.0f);
+        vec3 bottlePos = vec3(x, 0.0f, z);
+
+        // Obliczenie kierunku od butelki do kamery (tylko w płaszczyźnie XZ)
+        vec3 toCamera = normalize(
+            vec3(cameraPos.x - bottlePos.x, 0.0f, cameraPos.z - bottlePos.z));
+
+        // Cross product między wektorem do kamery a osią Y daje nam oś obrotu,
+        // która jest prostopadła do obu wektorów i pozwala na przechylenie
+        // butelki w kierunku kamery
+        vec3 rotationAxis = normalize(cross(vec3(0.0f, 1.0f, 0.0f), toCamera));
+
+        // Zastosowanie obrotu
+        M = rotate(M, rotationAmount, rotationAxis);
+      }
+
+      M = rotate(M, angle - radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
 
       shader.setMat4("M", M);
       bottleObject.Draw(shader);

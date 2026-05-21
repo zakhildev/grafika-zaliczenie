@@ -13,6 +13,8 @@ vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 int drinksDrank = 0;
 bool canDrink = false;
 bool isDrinking = false;
+float drinkingAnimationTime = 0.0f;
+const float drinkingDuration = 0.5f;
 
 namespace Callbacks {
 
@@ -62,9 +64,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
   if (key == GLFW_KEY_E && action == GLFW_PRESS) {
     if (canDrink && !isDrinking) {
       isDrinking = true;
+      drinkingAnimationTime = 0.0f;
       drinksDrank++;
       cout << "You drank! Total drinks: " << drinksDrank << endl;
-      isDrinking = false;
     } else if (isDrinking) {
       cout << "Already drinking!" << endl;
     } else {
