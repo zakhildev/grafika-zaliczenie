@@ -19,9 +19,9 @@
 using namespace glm;
 using namespace std;
 
-static int drinksDrank = 0;
-static bool canDrink = false;
-static bool isDrinking = false;
+extern int drinksDrank;
+extern bool canDrink;
+extern bool isDrinking;
 
 void initOpenGLProgram(GLFWwindow *window) {
   stbi_set_flip_vertically_on_load(true);
@@ -76,6 +76,7 @@ int main(void) {
 
   initOpenGLProgram(window);
   glfwSetCursorPosCallback(window, Callbacks::mouse_callback);
+  glfwSetKeyCallback(window, Callbacks::key_callback);
 
   Shader shader("shaders/simple.vert", "shaders/simple.frag");
 
@@ -124,6 +125,9 @@ int main(void) {
     cameraCollider.setCollisionSphere(cameraSphere);
 
     shader.setMat4("P", P);
+    shader.setFloat("time", glfwGetTime());
+    shader.setFloat("disortionFactor",
+                    drinksDrank > 0 ? 0.003f * drinksDrank : 0.0f);
 
     // Ustawenie oświetlenia
     shader.setVec3("ambientColor", 1.0f, 1.0f, 1.0f);

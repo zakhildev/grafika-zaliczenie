@@ -1,12 +1,18 @@
 #include "../include/Callbacks.hpp"
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <iostream>
 
 using namespace glm;
+using namespace std;
 
 vec3 cameraPos = vec3(0.0f, 2.0f, 3.0f);
 vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
 vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
+
+int drinksDrank = 0;
+bool canDrink = false;
+bool isDrinking = false;
 
 namespace Callbacks {
 
@@ -49,6 +55,22 @@ void mouse_callback(GLFWwindow *window, double xposIn, double yposIn) {
   front.y = sin(radians(pitch));
   front.z = sin(radians(yaw)) * cos(radians(pitch));
   cameraFront = normalize(front);
+}
+
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods) {
+  if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+    if (canDrink && !isDrinking) {
+      isDrinking = true;
+      drinksDrank++;
+      cout << "You drank! Total drinks: " << drinksDrank << endl;
+      isDrinking = false;
+    } else if (isDrinking) {
+      cout << "Already drinking!" << endl;
+    } else {
+      cout << "No bottle nearby to drink from!" << endl;
+    }
+  }
 }
 
 void processInput(GLFWwindow *window, float deltaTime) {

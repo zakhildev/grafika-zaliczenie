@@ -3,6 +3,7 @@
 in vec3 Normal;
 in vec2 TexCoords;
 in vec3 FragPos;
+in float DisortionFactor;
 
 out vec4 FragColor;
 
@@ -50,5 +51,5 @@ void main() {
 
   vec3 lightning = ambient + diffuse1 + diffuse2 + specular1 + specular2;
   vec3 result = lightning * vec3(texture(texture_diffuse1, TexCoords));
-  FragColor = vec4(result, 1);
+  FragColor = vec4(result + (DisortionFactor * 2.0f), 1);
 }
