@@ -5,4 +5,5 @@
 [x] Screen and movement "wobblyness" depending on drinks tasted
 [x] Drinking animation
 
+- Walking disortion
 - Full room model or static mesh class
