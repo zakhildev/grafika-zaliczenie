@@ -1,4 +1,5 @@
-﻿#define GLM_FORCE_RADIANS
+﻿#include <algorithm>
+#define GLM_FORCE_RADIANS
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "glm/ext/matrix_clip_space.hpp"
@@ -86,10 +87,9 @@ int main(void) {
   static Floor floor;
 
   static vector<Model> bottles;
-  bottles.push_back(Model("models/bottles/Bottle1.obj"));
-  bottles.push_back(Model("models/bottles/Bottle2.obj"));
-  bottles.push_back(Model("models/bottles/Bottle3.obj"));
-  bottles.push_back(Model("models/bottles/Bottle4.obj"));
+  bottles.push_back(Model("models/bottles/bottle1/Bottle1.obj"));
+  bottles.push_back(Model("models/bottles/bottle2/Bottle2.obj"));
+  bottles.push_back(Model("models/bottles/bottle3/Bottle3.obj"));
 
   while (!glfwWindowShouldClose(window)) {
     if (shader.shouldRecompile) {
@@ -142,13 +142,14 @@ int main(void) {
     float centerZ = -5.0f;
     for (int i = 0; i < 8; ++i) {
       // Calculate angle for a semi-circle (from 180 degrees down to 0 degrees)
-      // We use 7.0f to divide the 180 degrees into 7 intervals for 8 pedestals
       float angle = radians(180.0f - (i * 180.0f / 7.0f));
       float x = radius * cos(angle);
       float z = centerZ - radius * sin(angle);
 
       mat4 M = mat4(1.0f);
       M = translate(M, vec3(x, 0.0f, z));
+      // Rotate pedestals to face the center of the room
+      M = rotate(M, angle - radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
       shader.setMat4("M", M);
       pedestal.Draw(shader);
     }
@@ -162,7 +163,8 @@ int main(void) {
       Model bottle = bottles[i % bottles.size()];
 
       mat4 M = mat4(1.0f);
-      M = translate(M, vec3(x, 0.80f, z));
+      M = translate(M, vec3(x, .0f, z));
+      M = rotate(M, angle - radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
       shader.setMat4("M", M);
       bottle.Draw(shader);
     }
