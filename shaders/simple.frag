@@ -22,7 +22,7 @@ void main() {
   float ambientStrength = 0.35;
   vec3 ambient = ambientStrength * ambientColor;
 
-  // Diffuse (Blinn-Phong)
+  // Diffuse
   vec3 norm = normalize(Normal);
 
   // Light 1
@@ -35,18 +35,18 @@ void main() {
   float diff2 = max(dot(norm, lightDir2), 0.0);
   vec3 diffuse2 = diff2 * lightColor2;
 
-  // Specular (Blinn-Phong)
+  // Specular
   float specularStrength = 1.1;
   vec3 viewDir = normalize(viewPos - FragPos);
 
   // Light 1
   vec3 halfwayDir1 = normalize(lightDir1 + viewDir);
-  float spec1 = pow(max(dot(norm, halfwayDir1), 0.0), 64.0);
+  float spec1 = pow(max(dot(norm, halfwayDir1), 0.0), 45.0);
   vec3 specular1 = specularStrength * spec1 * vec3(texture(texture_specular1, TexCoords));
   
   // Light 2
   vec3 halfwayDir2 = normalize(lightDir2 + viewDir);
-  float spec2 = pow(max(dot(norm, halfwayDir2), 0.0), 64.0);
+  float spec2 = pow(max(dot(norm, halfwayDir2), 0.0), 45.0);
   vec3 specular2 = specularStrength * spec2 * vec3(texture(texture_specular1, TexCoords));
 
   vec3 lightning = ambient + diffuse1 + diffuse2 + specular1 + specular2;

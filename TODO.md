@@ -4,6 +4,5 @@
 [x] Drink tasting mechanic (Press "E" when near pedestal)
 [x] Screen and movement "wobblyness" depending on drinks tasted
 [x] Drinking animation
-
-- Walking disortion
-- Full room model or static mesh class
+[x] Walking disortion
+[x] Full room model or static mesh class

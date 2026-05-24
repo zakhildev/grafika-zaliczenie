@@ -79,14 +79,21 @@ void processInput(GLFWwindow *window, float deltaTime) {
   float cameraSpeed = 5.0f * deltaTime;
   vec3 horizontalFront = normalize(vec3(cameraFront.x, 0.0f, cameraFront.z));
 
+  // Zaburzenie chodzenia liczone ze zmiennej drinksDrank
+  float walkingDisortion = sin(drinksDrank * 0.5f) * 0.15f;
+  vec3 disturbance = vec3(walkingDisortion * sin(glfwGetTime() * 2.0f), 0,
+                          walkingDisortion * cos(glfwGetTime() * 2.0f));
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    cameraPos += cameraSpeed * horizontalFront;
+    cameraPos += cameraSpeed * horizontalFront + disturbance * 0.2f;
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    cameraPos -= cameraSpeed * horizontalFront;
+    cameraPos -= cameraSpeed * horizontalFront + disturbance * 0.2f;
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    cameraPos -= normalize(cross(horizontalFront, cameraUp)) * cameraSpeed;
+    cameraPos -= normalize(cross(horizontalFront, cameraUp)) * cameraSpeed +
+                 disturbance * 0.1f;
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    cameraPos += normalize(cross(horizontalFront, cameraUp)) * cameraSpeed;
+    cameraPos += normalize(cross(horizontalFront, cameraUp)) * cameraSpeed +
+                 disturbance * 0.1f;
 
   if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
     if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED) {

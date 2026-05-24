@@ -90,6 +90,11 @@ int main(void) {
   static Model pedestal("models/pedestal/Pedestal.obj");
   static Model chandelier("models/chandelier/Chandelier.obj");
   static Floor floor;
+  static Model wallRoof("models/walls/Roof.obj");
+  static Model wallLeft("models/walls/Left.obj");
+  static Model wallRight("models/walls/Right.obj");
+  static Model wallFront("models/walls/Front.obj");
+  static Model wallBack("models/walls/Back.obj");
 
   static vector<Model> bottleModels;
   bottleModels.push_back(Model("models/bottles/bottle1/Bottle1.obj"));
@@ -239,6 +244,24 @@ int main(void) {
     shader.setMat4("M", floorM);
     floor.Draw(shader);
 
+    mat4 wallsM = mat4(1.0f);
+    shader.setMat4("M", wallsM);
+    wallRoof.Draw(shader);
+
+    // Przez błędy exportu z Blendera, ściany są poodwracane
+    wallsM = rotate(wallsM, radians(180.0f), vec3(0.0f, 1.0f, 0.0f));
+    shader.setMat4("M", wallsM);
+    wallFront.Draw(shader);
+    wallBack.Draw(shader);
+
+    wallsM = mat4(1.0f);
+    shader.setMat4("M", wallsM);
+    wallRight.Draw(shader);
+
+    wallsM = rotate(wallsM, radians(180.0f), vec3(0.0f, 1.0f, 0.0f));
+    shader.setMat4("M", wallsM);
+    wallLeft.Draw(shader);
+
     for (const auto &pedestal : pedestals) {
       if (cameraCollider.checkCollision(pedestal)) {
         vec3 direction = normalize(pedestal.getCollisionSphere().center -
@@ -257,6 +280,16 @@ int main(void) {
         canDrink = false;
       }
     }
+
+    // Ograniczenie ruchu kamery do obszaru galerii
+    if (cameraPos.x < -9.5f)
+      cameraPos.x = -9.5f;
+    if (cameraPos.x > 9.5f)
+      cameraPos.x = 9.5f;
+    if (cameraPos.z < -14.5f)
+      cameraPos.z = -14.5f;
+    if (cameraPos.z > 14.5f)
+      cameraPos.z = 14.5;
 
     glfwSwapBuffers(window);
     glfwPollEvents();

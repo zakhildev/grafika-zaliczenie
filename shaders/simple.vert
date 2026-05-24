@@ -26,7 +26,7 @@ void main() {
 
   if (disortionFactor > 0.0) {
     // Dodajemy efekt falowania do pozycji wierzchołków
-    float disortion = sin(time * 2.0 + aPos.y * 10.0) * disortionFactor * 0.1;
+    float disortion = sin(time * 2.0 + aPos.y * 10.0) * disortionFactor * 0.4;
     FragPos.x += disortion;
     FragPos.z += disortion;
   }
