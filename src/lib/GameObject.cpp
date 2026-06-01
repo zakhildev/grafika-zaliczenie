@@ -18,3 +18,9 @@ void GameObject::Draw(Shader &shader) {
     model->Draw(shader);
   }
 }
+
+bool GameObject::checkCollision(const GameObject &other) const {
+  CollisionSphere otherSphere = other.getCollisionSphere();
+  float distance = length(collisionSphere.center - otherSphere.center);
+  return distance < (collisionSphere.radius + otherSphere.radius);
+}

@@ -14,11 +14,7 @@ public:
   CollisionSphere getCollisionSphere() const;
   void setCollisionSphere(const CollisionSphere &sphere);
   void Draw(Shader &shader);
-  bool checkCollision(const GameObject &other) const {
-    CollisionSphere otherSphere = other.getCollisionSphere();
-    float distance = length(collisionSphere.center - otherSphere.center);
-    return distance < (collisionSphere.radius + otherSphere.radius);
-  }
+  bool checkCollision(const GameObject &other) const;
 
 private:
   Model *model;
