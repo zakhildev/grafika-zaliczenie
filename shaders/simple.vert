@@ -19,7 +19,7 @@ uniform float time;
 
 void main() {
   TexCoords = aTexCoords;
-  Normal = aNormal;
+  Normal = mat3(transpose(inverse(M))) *  aNormal;
   DisortionFactor = disortionFactor;
 
   FragPos = vec3(M * vec4(aPos, 1.0));

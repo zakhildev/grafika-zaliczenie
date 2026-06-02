@@ -14,7 +14,9 @@
 #include "include/Floor.hpp"
 #include "include/GameObject.hpp"
 #include "include/Model.hpp"
+#include "include/Roof.hpp"
 #include "include/Shader.hpp"
+#include "include/Walls.hpp"
 
 using namespace glm;
 using namespace std;
@@ -89,12 +91,10 @@ int main(void) {
 
   static Model pedestal("models/pedestal/Pedestal.obj");
   static Model chandelier("models/chandelier/Chandelier.obj");
+
   static Floor floor;
-  static Model wallRoof("models/walls/Roof.obj");
-  static Model wallLeft("models/walls/Left.obj");
-  static Model wallRight("models/walls/Right.obj");
-  static Model wallFront("models/walls/Front.obj");
-  static Model wallBack("models/walls/Back.obj");
+  static Walls walls;
+  static Roof roof;
 
   static vector<Model> bottleModels;
   bottleModels.push_back(Model("models/bottles/bottle1/Bottle1.obj"));
@@ -239,28 +239,19 @@ int main(void) {
     }
 
     // Floor
-    mat4 floorM = mat4(1.0f);
-    floorM = translate(floorM, vec3(0.0f, -1.0f, 0.0f));
+    static mat4 floorM = translate(mat4(1.0f), vec3(0.0f, -1.0f, 0.0f));
     shader.setMat4("M", floorM);
     floor.Draw(shader);
 
-    mat4 wallsM = mat4(1.0f);
-    shader.setMat4("M", wallsM);
-    wallRoof.Draw(shader);
+    // Walls
+    // Nie ustaiam nowej macierzy modelu, ściany
+    // potrzebowałyby takich samych transformacji co podłoga
+    walls.Draw(shader);
 
-    // Przez błędy exportu z Blendera, ściany są poodwracane
-    wallsM = rotate(wallsM, radians(180.0f), vec3(0.0f, 1.0f, 0.0f));
-    shader.setMat4("M", wallsM);
-    wallFront.Draw(shader);
-    wallBack.Draw(shader);
-
-    wallsM = mat4(1.0f);
-    shader.setMat4("M", wallsM);
-    wallRight.Draw(shader);
-
-    wallsM = rotate(wallsM, radians(180.0f), vec3(0.0f, 1.0f, 0.0f));
-    shader.setMat4("M", wallsM);
-    wallLeft.Draw(shader);
+    // Roof
+    static mat4 roofM = translate(mat4(1.0f), vec3(0.0, -1.0f, 0.0f));
+    shader.setMat4("M", roofM);
+    roof.Draw(shader);
 
     for (const auto &pedestal : pedestals) {
       if (cameraCollider.checkCollision(pedestal)) {
