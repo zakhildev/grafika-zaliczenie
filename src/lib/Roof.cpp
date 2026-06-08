@@ -10,19 +10,19 @@ Roof::Roof() {
   float uv_repeat = 5.0f;
 
   vertices[0].Pos = vec3(-size, 7.5f, size);
-  vertices[0].Normal = vec3(0.0f, 1.0f, 0.0f);
+  vertices[0].Normal = vec3(0.0f, -1.0f, 0.0f);
   vertices[0].TexCoords = vec2(0.0f, 0.0f);
 
   vertices[1].Pos = vec3(size, 7.5f, size);
-  vertices[1].Normal = vec3(0.0f, 1.0f, 0.0f);
+  vertices[1].Normal = vec3(0.0f, -1.0f, 0.0f);
   vertices[1].TexCoords = vec2(uv_repeat, 0.0f);
 
   vertices[2].Pos = vec3(size, 7.5f, -size);
-  vertices[2].Normal = vec3(0.0f, 1.0f, 0.0f);
+  vertices[2].Normal = vec3(0.0f, -1.0f, 0.0f);
   vertices[2].TexCoords = vec2(uv_repeat, uv_repeat);
 
   vertices[3].Pos = vec3(-size, 7.5f, -size);
-  vertices[3].Normal = vec3(0.0f, 1.0f, 0.0f);
+  vertices[3].Normal = vec3(0.0f, -1.0f, 0.0f);
   vertices[3].TexCoords = vec2(0.0f, uv_repeat);
 
   vector<uint> indices = {0, 1, 2, 0, 2, 3};
