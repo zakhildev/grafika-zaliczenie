@@ -19,7 +19,7 @@ uniform sampler2D texture_specular1;
 
 void main() {
   // Ambient
-  float ambientStrength = 0.3;
+  float ambientStrength = 0.5;
   vec3 ambient = ambientStrength * ambientColor;
 
   // Diffuse
@@ -36,18 +36,18 @@ void main() {
   vec3 diffuse2 = diff2 * lightColor2;
 
   // Specular
-  float specularStrength = 1.1;
+  float specularStrength = 1.5;
   vec3 viewDir = normalize(viewPos - FragPos);
 
   // Light 1
   vec3 halfwayDir1 = normalize(lightDir1 + viewDir);
   float spec1 = pow(max(dot(norm, halfwayDir1), 0.0), 64.0);
-  vec3 specular1 = specularStrength * spec1 * vec3(texture(texture_specular1, TexCoords)) * lightColor1 * lightColor2;
+  vec3 specular1 = specularStrength * spec1 * vec3(texture(texture_specular1, TexCoords)) * lightColor1;
   
   // Light 2
   vec3 halfwayDir2 = normalize(lightDir2 + viewDir);
   float spec2 = pow(max(dot(norm, halfwayDir2), 0.0), 64.0);
-  vec3 specular2 = specularStrength * spec2 * vec3(texture(texture_specular1, TexCoords)) * lightColor1 * lightColor2;
+  vec3 specular2 = specularStrength * spec2 * vec3(texture(texture_specular1, TexCoords)) * lightColor2;
 
   vec3 lightning = ambient + diffuse1 + diffuse2 + specular1 + specular2;
   vec3 result = lightning * vec3(texture(texture_diffuse1, TexCoords));

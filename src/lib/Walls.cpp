@@ -4,7 +4,7 @@
 #include <iostream>
 
 Walls::Walls() {
-  vector<Vertex> vertices(8);
+  vector<Vertex> vertices(16);
 
   float wallMinX = -10.0f;
   float wallMaxX = 10.0f;
@@ -14,48 +14,70 @@ Walls::Walls() {
   float wallMaxY = 7.5f;
   float wallUvRepeat = 0.5f;
 
-  // Wierzchołki od lewego dolnego do prawgo dolnego
-  // Zgodnie z ruchem wskazówek zegara
+  // Przygotowujemy 16 wierzchołków (po 4 dla każdej z 4 ścian)
+  vertices.resize(16);
 
-  // Dolne wierzchołki
+  vec3 normLeft = vec3(1.0f, 0.0f, 0.0f);
   vertices[0].Pos = vec3(wallMinX, wallMinY, wallMinZ);
-  vertices[0].Normal = vec3(0.0f, 1.0f, 0.0f);
-  vertices[0].TexCoords = vec2(wallUvRepeat, 0.0f);
-
   vertices[1].Pos = vec3(wallMinX, wallMinY, wallMaxZ);
-  vertices[1].Normal = vec3(0.0f, 1.0f, 0.0f);
-  vertices[1].TexCoords = vec2(wallUvRepeat, wallUvRepeat);
+  vertices[2].Pos = vec3(wallMinX, wallMaxY, wallMaxZ);
+  vertices[3].Pos = vec3(wallMinX, wallMaxY, wallMinZ);
 
-  vertices[2].Pos = vec3(wallMaxX, wallMinY, wallMaxZ);
-  vertices[2].Normal = vec3(0.0f, 1.0f, 0.0f);
-  vertices[2].TexCoords = vec2(wallUvRepeat, 0.0f);
+  vertices[0].TexCoords = vec2(0.0f, 0.0f);
+  vertices[1].TexCoords = vec2(wallUvRepeat, 0.0f);
+  vertices[2].TexCoords = vec2(wallUvRepeat, wallUvRepeat);
+  vertices[3].TexCoords = vec2(0.0f, wallUvRepeat);
 
-  vertices[3].Pos = vec3(wallMaxX, wallMinY, wallMinZ);
-  vertices[3].Normal = vec3(0.0f, 1.0f, 0.0f);
-  vertices[3].TexCoords = vec2(wallUvRepeat, wallUvRepeat);
+  for (int i = 0; i < 4; i++)
+    vertices[i].Normal = normLeft;
 
-  // Górne wierzchołki
-  vertices[4].Pos = vec3(wallMinX, wallMaxY, wallMinZ);
-  vertices[4].Normal = vec3(0.0f, 1.0f, 0.0f);
-  vertices[4].TexCoords = vec2(0.0f, 0.0f);
-
-  vertices[5].Pos = vec3(wallMinX, wallMaxY, wallMaxZ);
-  vertices[5].Normal = vec3(0.0f, 1.0f, 0.0f);
-  vertices[5].TexCoords = vec2(0.0f, wallUvRepeat);
-
+  vec3 normFront = vec3(0.0f, 0.0f, -1.0f);
+  vertices[4].Pos = vec3(wallMinX, wallMinY, wallMaxZ);
+  vertices[5].Pos = vec3(wallMaxX, wallMinY, wallMaxZ);
   vertices[6].Pos = vec3(wallMaxX, wallMaxY, wallMaxZ);
-  vertices[6].Normal = vec3(0.0f, 1.0f, 0.0f);
-  vertices[6].TexCoords = vec2(0.0f, 0.0f);
+  vertices[7].Pos = vec3(wallMinX, wallMaxY, wallMaxZ);
 
-  vertices[7].Pos = vec3(wallMaxX, wallMaxY, wallMinZ);
-  vertices[7].Normal = vec3(0.0f, 1.0f, 0.0f);
+  vertices[4].TexCoords = vec2(0.0f, 0.0f);
+  vertices[5].TexCoords = vec2(wallUvRepeat, 0.0f);
+  vertices[6].TexCoords = vec2(wallUvRepeat, wallUvRepeat);
   vertices[7].TexCoords = vec2(0.0f, wallUvRepeat);
 
+  for (int i = 4; i < 8; i++)
+    vertices[i].Normal = normFront;
+
+  vec3 normRight = vec3(-1.0f, 0.0f, 0.0f);
+  vertices[8].Pos = vec3(wallMaxX, wallMinY, wallMaxZ);
+  vertices[9].Pos = vec3(wallMaxX, wallMinY, wallMinZ);
+  vertices[10].Pos = vec3(wallMaxX, wallMaxY, wallMinZ);
+  vertices[11].Pos = vec3(wallMaxX, wallMaxY, wallMaxZ);
+
+  vertices[8].TexCoords = vec2(0.0f, 0.0f);
+  vertices[9].TexCoords = vec2(wallUvRepeat, 0.0f);
+  vertices[10].TexCoords = vec2(wallUvRepeat, wallUvRepeat);
+  vertices[11].TexCoords = vec2(0.0f, wallUvRepeat);
+
+  for (int i = 8; i < 12; i++)
+    vertices[i].Normal = normRight;
+
+  vec3 normBack = vec3(0.0f, 0.0f, 1.0f);
+  vertices[12].Pos = vec3(wallMaxX, wallMinY, wallMinZ);
+  vertices[13].Pos = vec3(wallMinX, wallMinY, wallMinZ);
+  vertices[14].Pos = vec3(wallMinX, wallMaxY, wallMinZ);
+  vertices[15].Pos = vec3(wallMaxX, wallMaxY, wallMinZ);
+
+  vertices[12].TexCoords = vec2(0.0f, 0.0f);
+  vertices[13].TexCoords = vec2(wallUvRepeat, 0.0f);
+  vertices[14].TexCoords = vec2(wallUvRepeat, wallUvRepeat);
+  vertices[15].TexCoords = vec2(0.0f, wallUvRepeat);
+
+  for (int i = 12; i < 16; i++)
+    vertices[i].Normal = normBack;
+
   vector<uint> indices = {
-      0, 1, 4, 4, 5, 1, // Prawa ściana
-      1, 2, 5, 5, 6, 2, // Frontowa ścian
-      2, 3, 6, 6, 7, 3, // Lewa ściana
-      3, 0, 7, 7, 4, 0  // Tylna ściana
+      0,  1,  2,  2,  3,  0, // Lewa (-X)
+      4,  5,  6,  6,  7,  4, // Front (+Z)
+      8,  9,  10, 10, 11, 8, // Prawa (+X)
+      12, 13, 14, 14, 15, 12 // Tył (-Z)
   };
 
   vector<Texture> textures;
