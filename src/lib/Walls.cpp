@@ -12,7 +12,7 @@ Walls::Walls() {
   float wallMaxZ = 15.0f;
   float wallMinY = 0.0f;
   float wallMaxY = 7.5f;
-  float wallUvRepeat = 0.5f;
+  float wallUvRepeat = 1.0f;
 
   // Przygotowujemy 16 wierzchołków (po 4 dla każdej z 4 ścian)
   vertices.resize(16);

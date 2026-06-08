@@ -136,10 +136,10 @@ int main(void) {
 
     // Ustawenie oświetlenia
     shader.setVec3("ambientColor", 1.0f, 1.0f, 1.0f);
-    shader.setVec3("lightPos1", 0.0f, 7.5f, -8.5f);
-    shader.setVec3("lightColor1", 0.5f, 0.5f, 0.5f);
-    shader.setVec3("lightPos2", 0.0f, 7.5f, 8.5f);
-    shader.setVec3("lightColor2", 0.5f, 0.5f, 0.5f);
+    shader.setVec3("lightPos1", 0.0f, 6.5f, -8.5f);
+    shader.setVec3("lightColor1", 1.0f, 1.0f, 1.0f);
+    shader.setVec3("lightPos2", 0.0f, 6.5f, 8.5f);
+    shader.setVec3("lightColor2", 1.0f, 01.0f, 1.0f);
 
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;

@@ -19,6 +19,7 @@ uniform float time;
 
 void main() {
   TexCoords = aTexCoords;
+  // Przeniesienie z Model Space do World Space
   Normal = mat3(transpose(inverse(M))) *  aNormal;
   DisortionFactor = disortionFactor;
 
